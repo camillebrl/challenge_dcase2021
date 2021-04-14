@@ -100,7 +100,7 @@ def preprocessing_train(task):
 
     # Construction du dataset
     y=[]
-    dict_features={"ville":[],"device":[],"spectre_lm_and_delta":[]}
+    dict_features={"ville":[],"device":[],"spectre_low_freq_lm_and_delta":[],"spectre_high_freq_lm_and_delta":[]}
     for i in range(len(wavpaths)):
         category=df["category"][i]
         y.append(category)
@@ -122,9 +122,14 @@ def preprocessing_train(task):
         delta_log_mel=deltas(log_mel)
         delta_delta_log_mel = deltas(delta_log_mel)
         log_mels_concatenated = np.concatenate((log_mel[4:-4],delta_log_mel[2:-2],delta_delta_log_mel),axis=-1)
-        dict_features["spectre_lm_and_delta"].append(log_mels_concatenated)
+        x_low_freq=log_mels_concatenated[0:64]
+        x_high_freq=log_mels_concatenated[64:128]
+        dict_features["spectre_low_freq_lm_and_delta"].append(x_low_freq)
+        dict_features["spectre_high_freq_lm_and_delta"].append(x_high_freq)
     x=pd.DataFrame.from_dict(dict_features)
     return x,y
+
+print(preprocessing_train("evaluate"))
 
 def preprocessing_test():
     ThisPath = "./data/data_challenge/"
@@ -140,7 +145,7 @@ def preprocessing_test():
     wavpaths = df['filename'].tolist()
 
     # Construction du dataset
-    dict_features={"ville":[],"device":[],"spectre_lm_and_delta":[]}
+    dict_features={"ville":[],"device":[],"spectre_low_freq_lm_and_delta":[],"spectre_high_freq_lm_and_delta":[]}
     for i in range(len(wavpaths)):
         name=df['filename'][i]
         ville=name[findnth_left(name,"-",0):findnth_right(name,"-",1)]
@@ -160,6 +165,9 @@ def preprocessing_test():
         delta_log_mel=deltas(log_mel)
         delta_delta_log_mel = deltas(delta_log_mel)
         log_mels_concatenated = np.concatenate((log_mel[4:-4],delta_log_mel[2:-2],delta_delta_log_mel),axis=-1)
-        dict_features["spectre_lm_and_delta"].append(log_mels_concatenated)
+        x_low_freq=log_mels_concatenated[0:64]
+        x_high_freq=log_mels_concatenated[64:128]
+        dict_features["spectre_low_freq_lm_and_delta"].append(x_low_freq)
+        dict_features["spectre_high_freq_lm_and_delta"].append(x_high_freq)
     x=pd.DataFrame.from_dict(dict_features)
     return x
